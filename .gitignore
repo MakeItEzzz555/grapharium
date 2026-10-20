@@ -1,5 +1,7 @@
 # Generated views can contain private code symbols and source-file paths.
 DynamicIsland-Graphify-3D.html
+Grapharium.html
+*.grapharium.html
 Graphify-3D-preview.png
 .viewer-check.js
 .planet-smoke.html
@@ -11,3 +13,8 @@ graphify-out/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Local prototype metadata (contains machine-specific paths)
+README.txt
+# Legacy offline prototype JS: retained only on disk, not in release
+3d-force-graph.min.js

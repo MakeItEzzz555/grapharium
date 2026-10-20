@@ -1,0 +1,39 @@
+name: Verification
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Python unit tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Hierarchy unit tests
+        run: node tests/hierarchy.test.js
+      - name: Syntax checks
+        run: |
+          python -m py_compile build_viewer.py
+          node --check hierarchy.js
+          node --check universe.js
+          node --check viewer.js
+      - name: Generate synthetic demo
+        run: python build_viewer.py examples/demo-graph.json --output /tmp/grapharium-test/demo.html
+      - name: Verify offline runtime
+        run: test -f /tmp/grapharium-test/demo.html && test -f /tmp/grapharium-test/three.min.js

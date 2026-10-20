@@ -1,0 +1,137 @@
+{
+  "directed": false,
+  "multigraph": true,
+  "built_at_commit": "synthetic-demo",
+  "nodes": [
+    {
+      "id": "main",
+      "label": "App",
+      "community": 1,
+      "community_name": "Application Core",
+      "source_file": "src/App.ts",
+      "source_location": "L1",
+      "file_type": "code",
+      "_callable_class": true,
+      "_callable": true
+    },
+    {
+      "id": "start",
+      "label": "start()",
+      "community": 1,
+      "community_name": "Application Core",
+      "source_file": "src/App.ts",
+      "source_location": "L12",
+      "file_type": "code",
+      "_callable": true
+    },
+    {
+      "id": "handle",
+      "label": "handleRequest()",
+      "community": 1,
+      "community_name": "Application Core",
+      "source_file": "src/App.ts",
+      "source_location": "L30",
+      "file_type": "code",
+      "_callable": true
+    },
+    {
+      "id": "dispatch",
+      "label": "dispatch()",
+      "community": 1,
+      "community_name": "Application Core",
+      "source_file": "src/App.ts",
+      "source_location": "L34",
+      "file_type": "code",
+      "_callable": true
+    },
+    {
+      "id": "model",
+      "label": "Store",
+      "community": 2,
+      "community_name": "Data Layer",
+      "source_file": "src/Store.ts",
+      "source_location": "L1",
+      "file_type": "code",
+      "_callable_class": true
+    },
+    {
+      "id": "save",
+      "label": "save()",
+      "community": 2,
+      "community_name": "Data Layer",
+      "source_file": "src/Store.ts",
+      "source_location": "L9",
+      "file_type": "code",
+      "_callable": true
+    },
+    {
+      "id": "event",
+      "label": "DataChangedEvent",
+      "community": 2,
+      "community_name": "Data Layer",
+      "source_file": "src/Store.ts",
+      "source_location": "L26",
+      "file_type": "code",
+      "type": "event"
+    },
+    {
+      "id": "docs",
+      "label": "Overview",
+      "community": 3,
+      "community_name": "Docs",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "file_type": "document"
+    }
+  ],
+  "links": [
+    {
+      "source": "main",
+      "target": "start",
+      "relation": "method",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "source": "main",
+      "target": "handle",
+      "relation": "method",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "source": "handle",
+      "target": "dispatch",
+      "relation": "contains",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "source": "model",
+      "target": "save",
+      "relation": "method",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "source": "start",
+      "target": "save",
+      "relation": "calls",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "source": "handle",
+      "target": "save",
+      "relation": "calls",
+      "confidence": "EXTRACTED"
+    },
+    {
+      "source": "save",
+      "target": "event",
+      "relation": "references",
+      "confidence": "INFERRED"
+    },
+    {
+      "source": "docs",
+      "target": "main",
+      "relation": "references",
+      "confidence": "EXTRACTED"
+    }
+  ]
+}
