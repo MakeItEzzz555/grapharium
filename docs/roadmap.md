@@ -8,6 +8,8 @@
 - [x] 3D file hubs and nested stars/planets/moons
 - [x] Batched GPU instancing and basic LOD
 - [x] Aura connections and transparent firmaments
+- [x] Animated smooth suns, rotating halos and traveling aura waves
+- [x] Four-arm living galaxy overview and reduced-motion support
 - [x] Search, inspector, keyboard navigation, quality controls
 - [x] Synthetic tests and CI configuration
 - [ ] Public repository publication (requires explicit approval)

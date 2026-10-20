@@ -13,8 +13,8 @@ Grapharium is an offline-first **3D Graphify wrapper**: communities become const
 - Only EXTRACTED **contains**, **method**, **case_of** and **defines** edges create explicit nesting. Calls, references and inferred edges stay connections.
 - Explore reproducible, organically irregular orbital layouts with transparent file-level and nested firmaments.
 - Recognize file hubs, stars, planets, moons, events and documents by distinct procedural shapes.
-- Render celestial bodies and energy links with shared GPU-instanced geometry, view-dependent detail budgets and on-demand frames.
-- Control system separation, connection lengths, orbital spread, aura intensity, size contrast, detail depth and quality.
+- Render luminous suns with animated plasma shading, procedural coronas and rotating halos; use shared GPU-instanced geometry for bodies and aura links.
+- Control galaxy-wide rotation, halo/aura animation, system separation, connection lengths, orbital spread, aura intensity, size contrast, detail depth and quality. Animations pause when the tab is hidden and respect reduced-motion preferences.
 
 **Semantics:** Source-file hubs represent source-path groupings, not proven AST parents. Planet sizes are not real file byte sizes, execution times or source line counts. Graphify's global undirected flag is preserved; typed relations are retained without inventing causal direction.
 
@@ -53,12 +53,18 @@ After the GitHub repository is approved and published, you can clone it as MakeI
 
 Hierarchy depth hides complex internals until explored, while selected symbols keep their verified ancestor chain visible. Relation counts in the inspector reflect the graph; the canvas draws a configurable subset for performance.
 
+## The living spiral galaxy
+
+The community overview arranges graph communities across four irregular spiral arms inspired by the pulsing dot/Fibonacci spiral visual direction on 21st.dev. All bodies, links and decorative galaxy dust rotate together as one group, preserving pickability and connectivity. Detail views retain precise symbol positions instead of orbiting connections around unrelated objects. The default overview draws a reduced subset of the strongest community connections; the inspector still retains the complete graph. All graphics are original procedural Three.js implementations—no 21st.dev components, shader assets, or images are copied.
+
+**Inspiration:** https://21st.dev/@easemize/components/spiral-animation
+
 ## Visual grammar
 
 | Body | Geometry | Role |
 | --- | --- | --- |
-| File system | Amber torus-knot and wire firmament | Derived source-path hub |
-| Star | Faceted gold icosahedron | Root callable/class |
+| File system | Smooth blue system sphere, golden rotating halo, transparent firmament | Derived source-path hub |
+| Star | Smooth luminous sun with plasma shading, radial corona and rotating halo | Root callable/class |
 | Planet | Cyan dodecahedron | Explicit child |
 | Moon | Violet octahedron | Deeper explicit child |
 | Event | Coral cone beacon | Event-like metadata |
@@ -86,7 +92,7 @@ node --check universe.js
 node --check viewer.js
 ~~~
 
-See **docs/architecture.md**, **docs/roadmap.md**, **CONTRIBUTING.md**, **CHANGELOG.md** and **SECURITY.md**.
+See **docs/architecture.md**, **docs/visual-design.md**, **docs/roadmap.md**, **CONTRIBUTING.md**, **CHANGELOG.md** and **SECURITY.md**.
 
 ## Privacy
 

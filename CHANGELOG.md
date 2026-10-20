@@ -14,6 +14,14 @@ All notable changes will be documented here.
 - Synthetic example, automated converter/hierarchy tests, project documentation and GitHub CI.
 - Privacy-first generated-output exclusions and bundled Three.js license.
 
+### Enhanced 3D visuals
+- Replaced geometric torus-knot systems and faceted stars with smooth spheres and luminous, shader-animated solar surfaces.
+- Added original radial corona sprites, rotating instanced halos and animated traveling energy waves along relationships.
+- Arranged overview communities in four animated spiral arms with seeded, instanced galaxy dust, inspired by the 21st.dev Spiral Animation concept.
+- Added user-controlled motion pause/resume, automatic hidden-tab pause and reduced-motion preference handling.
+- Improved overview link density and degree-aware aura intensity for highly connected communities.
+- Verified galaxy rotation, animation clock, pause stability and community drill-down in real Brave/Playwright runs.
+
 ### Known limitations
 - Event identification depends on available Graphify role metadata.
 - No true physically accurate orbits, shader bloom postprocessing or live data updates.

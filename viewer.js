@@ -11,7 +11,7 @@
     const num=id=>Number($(id).value);
     return {separation:num('planetSpread'),orbit:num('orbit'),distance:num('edgeLength'),aura:num('aura'),
       depth:num('depth'),count:num('count'),size:num('contrast'),
-      quality:$('quality').value,links:$('links').checked,firmaments:$('firmaments').checked,
+      quality:$('quality').value,links:$('links').checked,motion:$('motion').checked,firmaments:$('firmaments').checked,
       inferred:$('inferred').checked,files:$('filePlanets').checked};
   };
   const limit=()=>({low:320,balanced:850,high:1700}[$('quality').value]||850);
@@ -63,22 +63,29 @@
   function overview(){
     mode='overview';community=null;selected=null;
     const options=opts(), top=ALL.g.slice(0,options.count), keep=new Set(top.map(g=>g.c));
+    // 21st.dev Fibonacci/dot-spiral inspiration, adapted as four deterministic
+    // 3D logarithmic arms. Communities are the actual selectable bodies.
+    const arms=4,perArm=Math.max(1,Math.ceil(top.length/arms));
     const stars=top.map((g,i)=>{
-      const r=Math.cbrt(i+1)*95*options.separation;
-      const a=i*2.399963+Math.sin(i*1.4)*.22;
-      return {id:'community:'+g.c,name:g.name,c:g.c,category:'system',radius:Math.max(18,Math.min(85,12+Math.sqrt(g.count)*options.size*3.6)),
-        count:g.count, bound:12+Math.sqrt(g.count)*3,
-        x:Math.cos(a)*r,y:Math.sin(i*1.7)*r*.48,z:Math.sin(a)*r};
+      const arm=i%arms,step=Math.floor(i/arms),t=(step+.6)/(perArm+.2);
+      const wobble=.08*Math.sin((g.c+1)*1.71);
+      const angle=arm*Math.PI*2/arms+t*Math.PI*1.45+wobble;
+      const distance=options.separation*(70+920*Math.pow(t,.82));
+      return {id:'community:'+g.c,name:g.name,c:g.c,category:'system',
+        radius:Math.max(18,Math.min(76,12+Math.sqrt(g.count)*options.size*3.0)),
+        count:g.count,bound:12+Math.sqrt(g.count)*3,
+        x:Math.cos(angle)*distance,y:Math.sin(i*2.19)*distance*.095,
+        z:Math.sin(angle)*distance};
     });
     const lookup=new Map(stars.map(n=>[n.c,n]));
     const links=ALL.gl.filter(e=>keep.has(e[0])&&keep.has(e[1]))
-      .sort((a,b)=>b[2]-a[2]).slice(0,Math.min(limit(),options.count*4))
+      .sort((a,b)=>b[2]-a[2]).slice(0,Math.min(limit(),options.count*(options.quality==='high'?4:options.quality==='low'?1:2)))
       .map(e=>({a:lookup.get(e[0]),b:lookup.get(e[1]),kind:'community',confidence:'AGGREGATED'}));
     layout={nodes:stars,systems:[],edges:links};
     visible=new Map(stars.map(n=>[n.id,n]));activeEdges=links;
-    universe.draw(layout,{...options,selected:null,fit:true});
+    universe.draw(layout,{...options,galaxy:true,selected:null,fit:true});
     $('mode').textContent='Community overview';
-    $('viewhint').textContent='Click a system to inspect its code symbols. Size reflects symbol counts, not file bytes.';
+    $('viewhint').textContent='Four spiral arms rotate as one galaxy. Click a community to inspect real code symbols.';
     $('backBtn').disabled=true;
     $('detail').textContent='Select a community or search across the graph.';
     $('nodeTitle').textContent='Architecture inspector';
@@ -199,6 +206,7 @@
     pending=requestAnimationFrame(()=>{pending=0;configLabels();if(mode==='overview')overview();else drawCommunity(false);});
   }
   try{
+    if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)$('motion').checked=false;
     universe=GraphariumUniverse.mount($('graph'),choose);
     metrics();configLabels();
     $('overviewBtn').onclick=overview;$('backBtn').onclick=overview;
@@ -206,6 +214,7 @@
     $('search').addEventListener('input',search);
     ['planetSpread','edgeLength','contrast','orbit','aura','depth','count','quality',
       'links','firmaments','inferred','filePlanets'].forEach(id=>$(id).addEventListener('input',scheduleRedraw));
+    $('motion').addEventListener('input',()=>universe.setMotion($('motion').checked));
     $('exportBtn').onclick=()=>{
       const json={sourceCommit:ALL.commit,mode,community,selected:selected==null?null:model.nodes[selected].id,
         settings:opts(),visibleBodies:universe.diagnostics().visibleNodes};

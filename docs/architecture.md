@@ -20,7 +20,7 @@ Hierarchy depth is a lazy visibility budget: hidden nodes and edges remain index
 
 ## Rendering
 
-Three.js v0.158.0 is locally bundled. The viewer creates shared static geometries and one InstancedMesh per symbol category, with batched connection cylinders and optional low-opacity translucent/wireframe enclosures. Geometry is rebuilt on explicit scene changes; no continuous animation loop is required, reducing idle GPU work.
+Three.js v0.158.0 is locally bundled. The viewer creates shared static geometries and one InstancedMesh per symbol category, with batched connection cylinders and optional low-opacity translucent/wireframe enclosures. Geometry is rebuilt on explicit scene changes. Animation uses a bounded requestAnimationFrame loop while enabled and the page is visible; hidden tabs stop rendering and reduced-motion preferences disable continuous motion. Pausing freezes orientation without reinitializing the graph.
 
 Quality presets cap visible graph relationships at 320, 850 or 1700 edges. Enclosure budgets vary with quality. Full graph search and adjacency inspection remain available regardless of draw caps.
 

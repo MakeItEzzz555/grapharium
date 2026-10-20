@@ -101,9 +101,10 @@ input[type="range"]{width:100%;accent-color:#82d8fb;cursor:pointer;margin:3px 0}
     <input id="count" type="range" min="30" max="250" step="10" value="90">
   </div>
   <div class="section">
-    <div class="section-title">Celestial rendering</div>
+    <div class="section-title">Celestial rendering · living galaxy</div>
     <div class="range-head"><label for="aura">Connection aura</label><strong id="auraValue">2×</strong></div>
     <input id="aura" type="range" min=".5" max="6" step=".5" value="2">
+    <label class="check-row"><input id="motion" type="checkbox" checked> Animate galaxy, halos and aura</label>
     <label class="check-row"><input id="firmaments" type="checkbox" checked> Transparent firmaments</label>
     <label class="check-row"><input id="filePlanets" type="checkbox" checked> Show source-file hubs</label>
     <label class="check-row"><input id="links" type="checkbox" checked> Show relationships</label>
@@ -114,7 +115,7 @@ input[type="range"]{width:100%;accent-color:#82d8fb;cursor:pointer;margin:3px 0}
       <option value="balanced" selected>Balanced · 850 connections</option>
       <option value="high">Detailed · 1700 connections</option>
     </select>
-    <p class="hint">File hubs group symbols by source path. Only EXTRACTED containment edges create parent-child systems. Inferred and call edges remain connections.</p>
+    <p class="hint">Animations pause when the tab is hidden, and respect reduced-motion system preferences. File hubs group symbols by source path. Only EXTRACTED containment edges create parent-child systems. Inferred and call edges remain connections.</p>
   </div>
   <div class="section">
     <div class="section-title">Legend</div>
