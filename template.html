@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graphify 3D | DynamicIsland</title>
+<style>
+:root{color-scheme:dark;--bg:#070b12;--panel:#101724;--line:#253043;--text:#e9f0f9;--muted:#93a5bc;--cyan:#75d8fa}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;overflow:hidden}
+#app{display:grid;grid-template-columns:270px minmax(300px,1fr) 318px;height:100vh}aside{background:var(--panel);overflow-y:auto;z-index:3}
+#controls{border-right:1px solid var(--line);padding:22px 18px 18px}#inspector{border-left:1px solid var(--line);padding:22px 18px}
+.brand{font-size:11px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:var(--cyan)}h1{font-size:24px;line-height:1.1;margin:9px 0 8px;letter-spacing:-.05em}h2{font-size:15px;margin:0 0 14px;letter-spacing:-.02em}.description,.hint,.muted{color:var(--muted);font-size:12px;line-height:1.55}
+.section{border-top:1px solid var(--line);margin-top:21px;padding-top:19px}.section-title{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;letter-spacing:.02em;margin-bottom:9px}
+input[type=search]{width:100%;padding:12px 11px;color:var(--text);border:1px solid #31415a;background:#0b111c;border-radius:9px;outline:none}
+input:focus-visible,button:focus-visible{outline:2px solid #75d8fa;outline-offset:2px}
+button{background:#1a273a;border:1px solid #31425a;color:var(--text);padding:9px 11px;border-radius:9px;font:inherit;font-size:12px;cursor:pointer}button:hover{background:#263953}button.primary{background:#1b4660;border-color:#3788ae}.buttons{display:flex;gap:7px;flex-wrap:wrap}
+input[type=range]{accent-color:#73d6fb;width:100%;cursor:pointer}.range-head{display:flex;justify-content:space-between;margin:12px 0 5px;color:var(--muted);font-size:12px}.range-head strong{color:var(--text);font-variant-numeric:tabular-nums}
+.check-row{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);margin-top:13px}
+#searchresults{max-height:230px;overflow:auto;margin-top:8px}.result{display:block;border:0;border-radius:7px;width:100%;background:transparent;text-align:left;padding:9px;font-size:12px}.result:hover{background:#20304a}
+.result .type{display:block;color:var(--muted);font-size:10px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#viewport{position:relative;min-width:0;overflow:hidden}#graph{position:absolute;inset:0}#graph canvas{display:block}
+#topbar{position:absolute;top:18px;left:20px;right:20px;display:flex;justify-content:space-between;gap:16px;pointer-events:none;z-index:2}
+.pill{background:#111d2dcc;border:1px solid #304560;border-radius:20px;padding:8px 13px;font-size:12px;backdrop-filter:blur(14px)}
+#footbar{position:absolute;bottom:14px;left:20px;right:20px;text-align:center;color:#8e9bb0;font-size:11px;pointer-events:none;z-index:2}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0 7px}.metric{padding:10px;background:#0b121e;border:1px solid #222e41;border-radius:10px}.metric b{font-variant-numeric:tabular-nums;font-size:19px;display:block}.metric small{color:var(--muted);font-size:10px}
+.field{margin:13px 0;color:var(--muted);font-size:12px;line-height:1.55;overflow-wrap:anywhere}.field b{color:var(--text);display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+#neighbors{margin-top:11px;max-height:41vh;overflow:auto}.neighbor{display:flex;justify-content:space-between;gap:8px;text-align:left;background:#111d2b;border:0;width:100%;padding:8px 9px;margin:3px 0}.neighbor span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.neighbor small{color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);display:inline-block;margin-right:5px}
+@media(max-width:1000px){#app{grid-template-columns:230px minmax(0,1fr) 265px}#controls,#inspector{padding:18px 12px}h1{font-size:21px}}
+@media(max-width:750px){#app{grid-template-columns:190px minmax(0,1fr)}#inspector{display:none}}
+</style>
+<script src="./3d-force-graph.min.js"></script>
+</head>
+<body>
+<div id="app">
+<aside id="controls">
+  <div class="brand">Graphify · 3D Explorer</div>
+  <h1>DynamicIsland</h1>
+  <p class="description">A spacious, interactive view of your code architecture. Open clusters to inspect individual symbols.</p>
+  <div class="metric-grid">
+    <div class="metric"><b id="allnodes">—</b><small>Total symbols</small></div>
+    <div class="metric"><b id="alllinks">—</b><small>Relationships</small></div>
+    <div class="metric"><b id="allgroups">—</b><small>Communities</small></div>
+    <div class="metric"><b id="shown">—</b><small>Visible nodes</small></div>
+  </div>
+  <div class="section"><div class="section-title"><span>Explore</span></div>
+    <div class="buttons"><button id="overviewBtn" class="primary">All communities</button><button id="backBtn">Back</button><button id="fitBtn">Fit view</button></div>
+    <p class="hint" id="viewhint">Click a community to open its code symbols.</p>
+  </div>
+  <div class="section"><div class="section-title"><label for="search">Find a symbol or community</label></div>
+    <input id="search" type="search" placeholder="Search class, function, file…" autocomplete="off" spellcheck="false">
+    <div id="searchresults"></div>
+  </div>
+  <div class="section"><div class="section-title"><span>Graph layout</span></div>
+    <div class="range-head"><label for="spacing">Node spacing</label><strong id="spacingValue">250</strong></div><input type="range" min="100" max="650" step="25" value="250" id="spacing">
+    <div class="range-head"><label for="count">Communities visible</label><strong id="countValue">90</strong></div><input type="range" min="30" max="250" step="10" value="90" id="count">
+    <div class="range-head"><label for="planetSpread">Large-file separation</label><strong id="planetSpreadValue">3×</strong></div><input type="range" min="1" max="6" step=".5" value="3" id="planetSpread">
+    <div class="range-head"><label for="edgeLength">Relationship length</label><strong id="edgeLengthValue">2.5×</strong></div><input type="range" min="1" max="6" step=".5" value="2.5" id="edgeLength">
+    <div class="range-head"><label for="contrast">Planet size contrast</label><strong id="contrastValue">3×</strong></div><input type="range" min="1" max="5" step=".5" value="3" id="contrast">
+    <label class="check-row"><input type="checkbox" checked id="filePlanets"> Show source-file planets</label>
+    <label class="check-row"><input type="checkbox" checked id="links"> Show relationships</label>
+    <p class="hint">Large files become planets, with individual symbols orbiting them. Planet sizes represent <b>symbol counts</b>, not bytes or lines. Spread file planets and extend dependencies independently.</p>
+  </div>
+  <div class="section">
+    <p class="hint"><span class="dot"></span> Drag to rotate · Scroll to zoom · Right-drag to pan.<br>Click a sphere to open its details. Double-click a result to navigate from anywhere.</p>
+  </div>
+</aside>
+<main id="viewport" aria-label="Interactive three-dimensional code graph">
+  <div id="graph"></div>
+  <div id="topbar"><div class="pill" id="mode">Community overview</div><div class="pill" id="relationStats">Loading…</div></div>
+  <div id="footbar">Local snapshot · <span id="commit"></span> · Rendered in 3D · No agent or source files modified</div>
+</main>
+<aside id="inspector">
+  <div class="brand">Inspector</div><h2 id="nodeTitle">Select a sphere</h2>
+  <p id="nodeHint" class="hint">Choose a community in the overview. Search for a symbol to jump directly to it.</p>
+  <div id="meta"></div><div id="neighbors"></div>
+</aside>
+</div>
+<script>
+/*GRAPH_DATA*/
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var safe = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
+  if (typeof ForceGraph3D !== "function") { $("nodeHint").textContent = "3D renderer was not loaded. Confirm 3d-force-graph.min.js is in this folder."; return; }
+  var NODES = ALL.n, LINKS = ALL.l, GROUPS = ALL.g, GROUP_LINKS = ALL.gl;
+  var byId = new Map(), groupsById = new Map(), members = new Map(), adj = new Map();
+  var degree = new Map(), fileCounts = new Map(), current = {mode:"overview",group:null,selected:null};
+  NODES.forEach(function(n){if(n.file)fileCounts.set(n.file,(fileCounts.get(n.file)||0)+1);});
+  NODES.forEach(function(n,i){byId.set(n.id,{d:n,i:i});var arr=members.get(n.c)||[];arr.push(n);members.set(n.c,arr);});
+  GROUPS.forEach(function(g){groupsById.set(g.c,g);});
+  LINKS.forEach(function(e){var a=NODES[e[0]],b=NODES[e[1]];if(!a||!b)return;
+    var aList=adj.get(a.id)||[],bList=adj.get(b.id)||[];aList.push(b.id);bList.push(a.id);adj.set(a.id,aList);adj.set(b.id,bList);
+    degree.set(a.id,(degree.get(a.id)||0)+1);degree.set(b.id,(degree.get(b.id)||0)+1);
+  });
+  var colors=["#67c8f8","#e8ba75","#a4dcad","#c7a5f9","#ffa4aa","#6fe5d3","#b0baef","#e9df98","#8ee8f3","#f8b8e5"];
+  function color(c){var id=Number(c)||0;return colors[Math.abs(id)%colors.length];}
+  function nodeRadius(n) {
+    var contrast=Number($("contrast").value), strength=0.6+contrast*0.22;
+    if(n.kind==="community")return Math.min(44,11+Math.sqrt(n.count||1)*(0.65+contrast*.29));
+    if(n.kind==="file")return Math.min(48,7+Math.log2(1+(n.count||1))*strength*2.5);
+    if(n.klass)return 5.4+contrast*1.25;
+    if(n.role==="module")return 5.2+contrast*.8;
+    if(n.isDocument)return 4.5+contrast*.65;
+    return 3.6;
+  }
+  function camFocus(n) {if(!n || !Number.isFinite(n.x))return;var d=Math.max(130,Math.hypot(n.x||0,n.y||0,n.z||0)/3);var scale=1+ d/Math.max(1,Math.hypot(n.x||0,n.y||0,n.z||0)); graph.cameraPosition({x:n.x*scale+Math.sign(n.x||1)*120,y:n.y*scale+80,z:n.z*scale+210},{x:n.x,y:n.y,z:n.z},650);}
+  var graph = ForceGraph3D({controlType:"orbit"})($("graph"))
+    .backgroundColor("#070b12").showNavInfo(false)
+    .nodeOpacity(.93).nodeResolution(8)
+    .nodeRelSize(6).linkOpacity(.18)
+    .linkColor(function(l){return "#7a93b0";})
+    .linkWidth(function(l){return l.weight && l.weight>5? .48:.23;})
+    .nodeColor(function(n){return n.color||color(n.c);})
+    .nodeVal(function(n){return Math.pow(nodeRadius(n)/4,3);})
+    .nodeLabel(function(n){return "<div style='background:#111b2bee;color:#eef7ff;padding:8px 10px;border:1px solid #31425a;border-radius:8px;font:12px system-ui'><b>"+safe(n.name)+"</b><br>"+(n.kind==="community"?n.count+" symbols":n.kind==="file"?n.count+" source-file symbols":safe(n.file||""))+"</div>";})
+    .onNodeClick(function(n){if(current.mode==="overview"){openGroup(n.c);}else if(n.kind==="file"){inspectFile(n);camFocus(n);}else{inspectSymbol(n.id);camFocus(n);}})
+    .onNodeHover(function(n){document.body.style.cursor=n?"pointer":"default";})
+    .warmupTicks(18).cooldownTicks(125).linkDirectionalParticles(0);
+  function applySpacing(){
+    var x=Number($("spacing").value), spread=Number($("planetSpread").value), extended=Number($("edgeLength").value);
+    $("spacingValue").textContent=x;$("planetSpreadValue").textContent=spread+"×";$("edgeLengthValue").textContent=extended+"×";
+    $("contrastValue").textContent=$("contrast").value+"×";
+    var charge=graph.d3Force("charge");
+    if(charge)charge.strength(function(n){
+      var importance=n.kind==="file"?(1+Math.log2(1+(n.count||1))*spread*.6):n.kind==="community"?(1+Math.sqrt(n.count||1)*spread*.025):1;
+      return -x*1.15*importance;
+    });
+    var force=graph.d3Force("link");
+    if(force)force.distance(function(l){
+      if(l.kind==="contains")return x*(.6+spread*.25)+Math.log2(2+(l.fileSize||1))*x*.12;
+      return x*extended;
+    }).strength(function(l){return l.kind==="contains"?.45:.11;});
+    clearTimeout(applySpacing.refreshTimer);
+    applySpacing.refreshTimer=setTimeout(function(){
+      graph.nodeVal(function(n){return Math.pow(nodeRadius(n)/4,3);});
+      graph.d3ReheatSimulation();
+    },250);
+  }
+  function renderGraph(data,title,desc,focus){current.selected=null;$("mode").textContent=title;$("viewhint").textContent=desc;$("shown").textContent=data.nodes.length.toLocaleString();
+    $("relationStats").textContent=data.nodes.length.toLocaleString()+" nodes · "+data.links.length.toLocaleString()+" edges";graph.graphData(data);applySpacing();
+    if(focus) setTimeout(function(){graph.zoomToFit(650,95);},350);else setTimeout(function(){graph.zoomToFit(550,90);},1100);
+    $("nodeTitle").textContent="Select a sphere";$("nodeHint").textContent=desc;$("meta").replaceChildren();$("neighbors").replaceChildren();
+  }
+  function overview(){current.mode="overview";current.group=null;var count=Number($("count").value), top=GROUPS.slice().sort(function(a,b){return b.count-a.count;}).slice(0,count),keep=new Set(top.map(function(g){return g.c;}));
+    var nodes=top.map(function(g){return {id:"community-"+g.c,c:g.c,kind:"community",name:g.name,count:g.count,color:color(g.c)};});
+    var links=GROUP_LINKS.filter(function(e){return keep.has(e[0])&&keep.has(e[1]);}).sort(function(a,b){return b[2]-a[2];}).slice(0,count*3).map(function(e){return {source:"community-"+e[0],target:"community-"+e[1],weight:e[2]};});
+    renderGraph({nodes:nodes,links:links},"Community overview", "Click a community sphere to explore the symbols inside.",true);
+    $("backBtn").disabled=true;
+  }
+  function openGroup(c,selectedId){var group=groupsById.get(c);if(!group)return;
+    current.mode="community";current.group=c;var src=members.get(c)||[],ids=new Set(src.map(function(n){return n.id;}));var nodes=src.map(function(n){return {id:n.id,c:n.c,name:n.label,file:n.file,loc:n.loc,kind:"symbol",isDocument:n.type==="document",klass:n.klass,role:n.role,color:color(n.c)};});
+    var edges=LINKS.filter(function(e){return ids.has(NODES[e[0]].id)&&ids.has(NODES[e[1]].id);}).slice(0,1500).map(function(e){return {source:NODES[e[0]].id,target:NODES[e[1]].id};});
+    if($("filePlanets").checked){
+      var files=new Map();
+      src.forEach(function(n){if(n.file){var arr=files.get(n.file)||[];arr.push(n);files.set(n.file,arr);}});
+      files.forEach(function(symbols,path){
+        var fid="__file_planet__:"+path;
+        nodes.push({id:fid,c:c,kind:"file",name:path.split("/").pop(),file:path,count:fileCounts.get(path)||symbols.length,localCount:symbols.length,color:"#ffd78a"});
+        symbols.forEach(function(n){edges.push({source:fid,target:n.id,kind:"contains",fileSize:fileCounts.get(path)||symbols.length});});
+      });
+    }
+    renderGraph({nodes:nodes,links:edges},group.name,group.count+" symbols in this community. Source-file planets aggregate symbols by path.",true);
+    $("backBtn").disabled=false;
+    if(selectedId){setTimeout(function(){var n=graph.graphData().nodes.find(function(n){return n.id===selectedId;});if(n){inspectSymbol(n.id);camFocus(n);}},1900);}
+  }
+  function showField(title,value){var d=document.createElement("div");d.className="field";var b=document.createElement("b");b.textContent=title;d.appendChild(b);d.appendChild(document.createTextNode(value||"—"));$("meta").appendChild(d);}
+  function inspectSymbol(id){var rec=byId.get(id);if(!rec)return;var n=rec.d;current.selected=id;
+    $("nodeTitle").textContent=n.label;$("nodeHint").textContent="Code symbol";$("meta").replaceChildren();$("neighbors").replaceChildren();
+    showField("Community",(groupsById.get(n.c)||{}).name||"Community "+n.c);showField("Source file",n.file||"—");showField("Location",n.loc||"—");showField("Relationships",String(degree.get(id)||0));
+    var list=Array.from(new Set(adj.get(id)||[])).sort(function(a,b){return (degree.get(b)||0)-(degree.get(a)||0);}).slice(0,70);
+    var title=document.createElement("h2");title.textContent="Connected symbols ("+new Set(adj.get(id)||[]).size+")";title.style.marginTop="22px";$("neighbors").appendChild(title);
+    list.forEach(function(other){var rec2=byId.get(other);if(!rec2)return;var x=rec2.d;var btn=document.createElement("button");btn.className="neighbor";var t=document.createElement("span");t.textContent=x.label;var s=document.createElement("small");s.textContent=x.c===n.c?"↗":"↪";btn.appendChild(t);btn.appendChild(s);
+      btn.onclick=function(){if(x.c!==current.group){openGroup(x.c,x.id);}else{inspectSymbol(x.id);var found=graph.graphData().nodes.find(function(v){return v.id===x.id;});camFocus(found);}};$("neighbors").appendChild(btn);});
+  }
+  function inspectFile(planet){
+    $("nodeTitle").textContent=planet.name;$("nodeHint").textContent="Derived source-file planet";$("meta").replaceChildren();$("neighbors").replaceChildren();
+    showField("Path",planet.file);showField("Total symbols in file",String(planet.count));showField("Symbols in this community",String(planet.localCount));
+    showField("Size metric","Graphify symbols per source file — not byte size or lines of code");
+    var title=document.createElement("h2");title.textContent="Orbiting symbols";title.style.marginTop="22px";$("neighbors").appendChild(title);
+    (members.get(planet.c)||[]).filter(function(n){return n.file===planet.file;}).slice(0,100).forEach(function(n){
+      var btn=document.createElement("button");btn.className="neighbor";btn.textContent=n.label;
+      btn.onclick=function(){inspectSymbol(n.id);var node=graph.graphData().nodes.find(function(v){return v.id===n.id;});camFocus(node);};
+      $("neighbors").appendChild(btn);
+    });
+  }
+  function inspectGroup(c){var g=groupsById.get(c);if(!g)return;$("nodeTitle").textContent=g.name;$("nodeHint").textContent="Community of "+g.count+" symbols";$("meta").replaceChildren();$("neighbors").replaceChildren();showField("Members",String(g.count));}
+  var searchTimer=0;function doSearch(){clearTimeout(searchTimer);searchTimer=setTimeout(function(){
+    var q=$("search").value.trim().toLowerCase(),target=$("searchresults");target.replaceChildren();if(q.length<2)return;
+    var matches=NODES.filter(function(n){return n.label.toLowerCase().includes(q)||(n.file||"").toLowerCase().includes(q);}).slice(0,24);
+    matches.forEach(function(n){var b=document.createElement("button");b.className="result";b.textContent=n.label;var s=document.createElement("span");s.className="type";s.textContent=n.file||"Community "+n.c;b.appendChild(s);b.onclick=function(){openGroup(n.c,n.id);};target.appendChild(b);});
+    if(!matches.length){var no=document.createElement("p");no.className="hint";no.textContent="No matching symbols.";target.appendChild(no);}
+  },135);}
+  $("allnodes").textContent=NODES.length.toLocaleString();$("alllinks").textContent=LINKS.length.toLocaleString();$("allgroups").textContent=GROUPS.length.toLocaleString();$("commit").textContent=ALL.commit.slice(0,11);
+  $("search").addEventListener("input",doSearch);$("overviewBtn").onclick=overview;$("backBtn").onclick=overview;$("fitBtn").onclick=function(){graph.zoomToFit(600,90);};
+  ["spacing","planetSpread","edgeLength","contrast"].forEach(function(id){$(id).oninput=applySpacing;});
+  $("filePlanets").onchange=function(){if(current.mode==="community")openGroup(current.group);};
+  $("count").oninput=function(){$("countValue").textContent=this.value;if(current.mode==="overview")overview();};
+  $("links").onchange=function(){graph.linkVisibility(this.checked);};
+  var resize=()=>graph.width($("viewport").clientWidth).height($("viewport").clientHeight);new ResizeObserver(resize).observe($("viewport"));resize();overview();
+  window.addEventListener("keydown",function(e){if(e.key==="Escape" && document.activeElement!==$("search"))overview();if(e.key==="/" && document.activeElement!==$("search")){e.preventDefault();$("search").focus();}});
+})();
+</script>
+</body></html>

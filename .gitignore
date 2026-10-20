@@ -1,0 +1,13 @@
+# Generated views can contain private code symbols and source-file paths.
+DynamicIsland-Graphify-3D.html
+Graphify-3D-preview.png
+.viewer-check.js
+.planet-smoke.html
+.baseline-smoke.html
+# Do not publish scanned repositories or machine-local graph outputs.
+graph.json
+graphify-out/
+**/graphify-out/
+__pycache__/
+*.pyc
+.DS_Store
