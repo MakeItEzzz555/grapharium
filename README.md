@@ -1,6 +1,35 @@
-# Grapharium
+<p align="center">
+  <img src="assets/branding/grapharium-logo.png" alt="Grapharium logo: an orbital galaxy connected by code-graph nodes" width="780">
+</p>
 
-**Your codebase, as a universe.**
+<h1 align="center">Grapharium</h1>
+
+<p align="center"><strong>Your codebase, as a universe.</strong></p>
+
+<p align="center">
+  Offline-first 3D Graphify wrapper for exploring software architecture as an interactive code universe.
+</p>
+
+<p align="center">
+  <a href="https://github.com/MakeItEzzz555/grapharium/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/MakeItEzzz555/grapharium"></a>
+  <a href="https://github.com/MakeItEzzz555/grapharium/actions/workflows/ci.yml"><img alt="CI on main" src="https://img.shields.io/github/actions/workflow/status/MakeItEzzz555/grapharium/ci.yml?branch=main&amp;label=CI"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue"></a>
+  <img alt="Experimental developer preview" src="https://img.shields.io/badge/status-experimental-orange">
+</p>
+
+<p align="center">
+  <a href="https://github.com/MakeItEzzz555/grapharium/releases/latest">Download offline demo</a>
+  · <a href="#quick-start">Quick start</a>
+  · <a href="#one-prompt-setup-for-coding-agents">Agent setup prompt</a>
+  · <a href="#documentation">Documentation</a>
+</p>
+
+<p align="center">
+  <img src="assets/branding/grapharium-showcase.png" alt="Concept illustration of a Grapharium code universe with celestial systems and relationship links" width="100%">
+</p>
+
+<p align="center"><sub>Visual concept artwork. The actual offline viewer uses its own procedural Three.js interface and may look different.</sub></p>
+
 
 Grapharium is an offline-first **3D Graphify wrapper**: communities become constellations, files become enclosed systems, functions/classes become stars and planets, and code relationships form luminous connections. Built for precise software architecture inspection.
 
@@ -37,6 +66,14 @@ python3 build_viewer.py /path/to/graph.json --output /tmp/my-universe.html
 ~~~
 
 After the GitHub repository is approved and published, you can clone it as MakeItEzzz555/grapharium. The HTML embeds the complete graph and needs the local three.min.js file beside it to run offline.
+
+## One-prompt setup for coding agents
+
+Copy this into Codex, Claude Code, or another local coding agent to set up Grapharium in your own workspace. It performs no remote installation merely by being copied.
+
+> Clone https://github.com/MakeItEzzz555/grapharium into a new local directory after checking that the destination does not already contain user files. Inspect the README, requirements, scripts, and license first. Run the available Python and Node tests without modifying my existing projects. Generate a synthetic demo with python3 build_viewer.py examples/demo-graph.json, verify the generated Grapharium.html and accompanying three.min.js, and open the demo in my browser if available. Summarize how to load my own Graphify graph.json, any missing prerequisites, and test results. Do not upload graph data, overwrite local repositories, or request unnecessary permissions.
+
+For a manual setup, use the commands in [Quick start](#quick-start); this project does not require an installer, secrets, or a hosted service.
 
 ## Navigation
 
@@ -93,6 +130,16 @@ node --check viewer.js
 ~~~
 
 See **docs/architecture.md**, **docs/visual-design.md**, **docs/roadmap.md**, **CONTRIBUTING.md**, **CHANGELOG.md** and **SECURITY.md**.
+
+## Documentation
+
+- [Architecture](docs/architecture.md)
+- [Visual design](docs/visual-design.md)
+- [Roadmap](docs/roadmap.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Third-party license notices](THIRD-PARTY-NOTICES.md)
 
 ## Privacy
 
